@@ -1,0 +1,41 @@
+#!/usr/bin/bash 
+set -e
+set -x
+
+# Since makepkg no longer allows --asroot ...
+echo "nobody ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+chown -R nobody:nobody /build
+
+# skalibs-musl
+cd /build
+sudo -u nobody curl -O https://aur.archlinux.org/packages/sk/skalibs-musl/skalibs-musl.tar.gz
+sudo -u nobody tar zxf skalibs-musl.tar.gz
+cd skalibs-musl
+# Checking for /dev/random takes forever. Especially in a container.
+sudo -u nobody cp PKGBUILD PKGBUILD.dist
+sudo -u nobody sed -i '/ \.\/configure /s/$/ --enable-force-devr/' PKGBUILD
+rm /etc/leapsecs.dat
+sudo -u nobody makepkg -c -i --noconfirm
+
+# skalibs-execline
+cd /build
+sudo -u nobody curl -O https://aur.archlinux.org/packages/ex/execline-musl/execline-musl.tar.gz
+sudo -u nobody tar zxf execline-musl.tar.gz
+cd execline-musl
+sudo -u nobody makepkg -c -i --noconfirm
+
+# s6-musc
+cd /build
+sudo -u nobody curl -O https://aur.archlinux.org/packages/s6/s6-musl/s6-musl.tar.gz
+sudo -u nobody tar zxf s6-musl.tar.gz
+cd s6-musl
+sudo -u nobody makepkg -c
+
+# Change back to being owned by 
+chown $USER:$USER s6-musl*.xz
+mv s6-musl*.xz /output
+cd /output
+xz -d s6-musl*.xz
+gzip s6-musl*
+
+echo "Woo!"
