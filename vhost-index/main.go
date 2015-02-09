@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -29,31 +30,39 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/", redirectToList)
-	http.HandleFunc("/list", ListVHostContainers)
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir("site")))
+	mux.HandleFunc("/containers", ListContainers)
+	mux.HandleFunc("/container/", ContainerInfo)
+	mux.HandleFunc("/dockerinfo", DockerServerInfo)
 
 	fmt.Println("Starting http server...")
-	err := http.ListenAndServe(":3000", nil)
+	err := http.ListenAndServe(":3000", mux)
+
 	if err != nil {
 		fmt.Println("Unable to start http server:", err)
 		os.Exit(1)
 	}
 }
 
-func redirectToList(rw http.ResponseWriter, req *http.Request) {
-	http.Redirect(rw, req, "/list", http.StatusTemporaryRedirect)
+type Container struct {
+	ID      string
+	Image   string
+	ImageID string
+	Name    string
+	Status  string
+	VHost   string
 }
 
-func ListVHostContainers(rw http.ResponseWriter, req *http.Request) {
+func ListContainers(w http.ResponseWriter, r *http.Request) {
 	// Let's get a list of containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
 	if err != nil {
-		http.Error(rw, "Error retrieving list of containers: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	rw.Header().Set("Content-Type", "text/html")
 
-	fmt.Fprint(rw, "<table>")
+	ci := make([]*Container, 0)
 	for _, cv := range containers {
 		c, err := client.InspectContainer(cv.ID)
 		if err != nil {
@@ -61,17 +70,48 @@ func ListVHostContainers(rw http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
+		// Check for VHOST environment variable!
+		vhost := ""
 		for _, e := range c.Config.Env {
-			if strings.HasPrefix(e, "VIRTUAL_HOST=") {
-				name := strings.TrimPrefix(c.Name, "/")
-				vhost := strings.TrimPrefix(e, "VIRTUAL_HOST=")
-				status := "Stopped"
-				if c.State.Running {
-					status = "Running"
-				}
-				fmt.Fprintf(rw, "<tr><td>%s</td><td><a href='http://%s'>http://%s</a></td><td>%s</td></tr>", name, vhost, vhost, status)
+			if strings.HasPrefix(e, "VIRTUAL_HOST") {
+				vhost = strings.TrimPrefix(e, "VIRTUAL_HOST=")
 			}
 		}
+
+		co := &Container{
+			ID:      c.ID,
+			Image:   c.Config.Image,
+			ImageID: c.Image,
+			Name:    strings.TrimPrefix(c.Name, "/"),
+			Status:  cv.Status,
+			VHost:   vhost,
+		}
+
+		ci = append(ci, co)
 	}
-	fmt.Fprint(rw, "</table>")
+
+	json.NewEncoder(w).Encode(ci)
+}
+
+func ContainerInfo(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.RequestURI(), "/")
+	id := parts[len(parts)-1]
+
+	c, err := client.InspectContainer(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(c)
+}
+
+func DockerServerInfo(w http.ResponseWriter, r *http.Request) {
+	info, err := client.Info()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(info)
 }

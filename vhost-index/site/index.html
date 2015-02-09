@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>VHost Index</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootswatch/3.3.2/superhero/bootstrap.min.css">
+    <link rel="stylesheet" href="app.css" >
+  </head>
+
+  <body ng-app="VHostApp">
+
+    <div class="container">
+    <table class="table table-bordered table-condensed table-hover well well-sm" ng-controller="ListController as lc">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>VHost</th>
+          <th>Image</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="container in lc.containers">
+          <td><a class="btn btn-xs btn-primary" ng-href="/container/{{container.ID}}">{{container.Name}}</button></td>
+          <td><a class="btn btn-xs btn-info" ng-href="//{{container.VHost}}" ng-show="container.VHost">{{container.VHost}}</a></td>
+          <td>{{container.Image}}</td>
+          <td>{{container.Status}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="well well-sm" ng-controller="DockerInfoController as di">
+      <p>Docker Server Info</p>
+      <pre>{{di.info|json}}</pre>
+    </div>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.11/angular.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.tpl.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
