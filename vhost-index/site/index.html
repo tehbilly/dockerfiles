@@ -13,35 +13,40 @@
   </head>
 
   <body ng-app="VHostApp">
+    <!-- Navbar -->
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <!-- <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button> -->
+          <a class="navbar-brand" ui-sref="container-list">VHost Index</a>
+        </div>
 
-    <div class="container">
-    <table class="table table-bordered table-condensed table-hover well well-sm" ng-controller="ListController as lc">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>VHost</th>
-          <th>Image</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-repeat="container in lc.containers">
-          <td><a class="btn btn-xs btn-primary" ng-href="/container/{{container.ID}}">{{container.Name}}</button></td>
-          <td><a class="btn btn-xs btn-info" ng-href="//{{container.VHost}}" ng-show="container.VHost">{{container.VHost}}</a></td>
-          <td>{{container.Image}}</td>
-          <td>{{container.Status}}</td>
-        </tr>
-      </tbody>
-    </table>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li ui-sref-active="active"><a ui-sref="container-list">Containers</a></li>
+            <li><a class="disabled">Images</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a ui-sref="status">Status</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container" ui-view>
 
     <div class="well well-sm" ng-controller="DockerInfoController as di">
       <p>Docker Server Info</p>
       <pre>{{di.info|json}}</pre>
     </div>
 
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.11/angular.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-strap/2.1.6/angular-strap.tpl.min.js"></script>
-    <script src="app.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.11/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>
