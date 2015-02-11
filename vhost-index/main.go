@@ -31,9 +31,11 @@ func init() {
 
 func main() {
 	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir("site")))
+	mux.Handle("/", http.FileServer(http.Dir("./site")))
 	mux.HandleFunc("/containers", ListContainers)
 	mux.HandleFunc("/container/", ContainerInfo)
+	mux.HandleFunc("/images", ListImages)
+	mux.HandleFunc("/image/", ImageInfo)
 	mux.HandleFunc("/dockerinfo", DockerServerInfo)
 
 	fmt.Println("Starting http server...")
