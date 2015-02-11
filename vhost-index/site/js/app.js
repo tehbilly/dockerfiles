@@ -1,6 +1,6 @@
 var app = angular.module('VHostApp', ['ui.router']);
 // We need to configure stuff, right?
-app.config(function($stateProvider, $urlRouterProvider) {
+app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
     // For unmatched URLs, redirect to /
     $urlRouterProvider.otherwise("/containers/list");
     // Now we set up our routes
@@ -14,7 +14,7 @@ app.config(function($stateProvider, $urlRouterProvider) {
             url: "/list",
             templateUrl: "templates/container.list.html",
             controller: 'ContainerListController',
-            controllerAs: 'lc'
+            controllerAs: 'cl'
         })
         .state("containers.info", {
             url: "/info/{id}",
@@ -38,19 +38,18 @@ app.config(function($stateProvider, $urlRouterProvider) {
             templateUrl: "templates/image.info.html",
             controller: "ImageInfoController",
             controllerAs: "ii"
-        })
+        });
 });
 
-
-// Controller for the list of containers
-app.controller('ContainerListController', function($http) {
+app.controller('ContainerListController', ['$http', function($http) {
     var cl = this;
-
+    cl.loading = true;
     $http.get('/containers')
         .success(function(data) {
             cl.containers = data;
-        });
-});
+            cl.loading = false;
+        });;
+}]);
 
 app.controller('ContainerInfoController', function($http, $stateParams) {
     var ci = this;
@@ -78,7 +77,6 @@ app.controller('ImageInfoController', function($http, $stateParams) {
 
 app.controller('DockerInfoController', function($http) {
     var dsc = this;
-
     $http.get('/dockerinfo')
         .success(function(data) {
             dsc.info = data;

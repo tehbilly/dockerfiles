@@ -1,3 +1,31 @@
 <div class="well well-sm">
-    <pre>{{ci.info|json}}</pre>
+    <h3>
+        Container Info for <strong>{{ci.info.Name}}</strong>
+    </h3>
 </div>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <td>ID</td>
+            <td>{{ci.info.Id}}</td>
+        </tr>
+        <tr>
+            <td>Created</td>
+            <td>{{ci.info.Created}}</td>
+        </tr>
+        <tr>
+            <td>Image</td>
+            <td>{{ci.info.Image}}</td>
+        </tr>
+        <tr>
+            <td>Env</td>
+            <td>{{ci.info.Config.Env|json}}</td>
+        </tr>
+        <tr>
+            <td>Host Volumes</td>
+            <td>{{ci.info.HostConfig.Binds|json}}</td>
+        </tr>
+    </tbody>
+</table>
+<!-- The below data is just for my own personal reference while making 'er pretty -->
+<pre>{{ci.info|json}}</pre>
