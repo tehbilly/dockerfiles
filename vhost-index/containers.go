@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/fsouza/go-dockerclient"
+	"github.com/gorilla/mux"
 )
 
 type Container struct {
@@ -16,9 +18,10 @@ type Container struct {
 	Name    string
 	Status  string
 	VHost   string
+	Running bool
 }
 
-func ListContainers(w http.ResponseWriter, r *http.Request) {
+func ContainerList(w http.ResponseWriter, r *http.Request) {
 	// Let's get a list of containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
 	if err != nil {
@@ -35,6 +38,7 @@ func ListContainers(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Check for VHOST environment variable!
+		// This will be replaced when we're handling routing ourselves
 		vhost := ""
 		for _, e := range c.Config.Env {
 			if strings.HasPrefix(e, "VIRTUAL_HOST") {
@@ -49,6 +53,7 @@ func ListContainers(w http.ResponseWriter, r *http.Request) {
 			Name:    strings.TrimPrefix(c.Name, "/"),
 			Status:  cv.Status,
 			VHost:   vhost,
+			Running: c.State.Running,
 		}
 
 		ci = append(ci, co)
@@ -58,14 +63,41 @@ func ListContainers(w http.ResponseWriter, r *http.Request) {
 }
 
 func ContainerInfo(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.RequestURI(), "/")
-	id := parts[len(parts)-1]
-
+	id := mux.Vars(r)["id"]
 	c, err := client.InspectContainer(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	json.NewEncoder(w).Encode(c)
+}
+
+func ContainerStart(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	err := client.StartContainer(id, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "Started container %s", id)
+	log.Println("Started container:", id)
+}
+
+func ContainerStop(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	err := client.StopContainer(id, 10)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "Stopped container %s", id)
+	log.Println("Stopped container:", id)
+}
+
+func ContainerKill(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Not implemented", http.StatusNotImplemented)
+}
+
+func ContainerRestart(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Not implemented", http.StatusNotImplemented)
 }

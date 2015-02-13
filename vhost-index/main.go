@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/fsouza/go-dockerclient"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -29,16 +30,20 @@ func init() {
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.Handle("/", http.FileServer(http.Dir("./site")))
-	mux.HandleFunc("/containers", ListContainers)
-	mux.HandleFunc("/container/", ContainerInfo)
-	mux.HandleFunc("/images", ListImages)
-	mux.HandleFunc("/image/", ImageInfo)
-	mux.HandleFunc("/dockerinfo", DockerServerInfo)
+	r := mux.NewRouter()
+	r.NotFoundHandler = http.FileServer(http.Dir("site"))
+	r.HandleFunc("/containers/list", ContainerList)
+	r.HandleFunc("/containers/{id}/info", ContainerInfo)
+	r.HandleFunc("/containers/{id}/start", ContainerStart)
+	r.HandleFunc("/containers/{id}/stop", ContainerStop)
+	r.HandleFunc("/containers/{id}/kill", ContainerKill)
+	r.HandleFunc("/containers/{id}/restart", ContainerRestart)
+	r.HandleFunc("/images/list", ImageList)
+	r.HandleFunc("/images/{id}/info", ImageInfo)
+	r.HandleFunc("/dockerinfo", DockerServerInfo)
 
 	fmt.Println("Starting http server...")
-	err := http.ListenAndServe(":3000", mux)
+	err := http.ListenAndServe(":3000", r)
 
 	if err != nil {
 		fmt.Println("Unable to start http server:", err)

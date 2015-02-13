@@ -1,0 +1,15 @@
+<div>
+<div class="panel">
+	<div class="btn-group btn-group-justified">
+		<a class="btn btn-success" ng-click="startContainer()">Start</a>
+		<a class="btn btn-warning" ng-click="stopContainer()">Stop</a>
+		<a class="btn btn-danger" ng-click="killContainer()">Kill</a>
+		<a class="btn btn-info" ng-click="restartContainer()">Restart</a>
+	</div>
+</div>
+
+<div class="alert alert-dismissible ng-hide" ng-class="alert.class" ng-show="alert.show">
+  <button type="button" class="close" ng-click="clearMessage()">×</button>
+  {{alert.message}}
+</div>
+</div>

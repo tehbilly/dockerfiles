@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/fsouza/go-dockerclient"
+	"github.com/gorilla/mux"
 )
 
 type Image struct {
@@ -16,7 +16,7 @@ type Image struct {
 	VirtualSize int64
 }
 
-func ListImages(w http.ResponseWriter, r *http.Request) {
+func ImageList(w http.ResponseWriter, r *http.Request) {
 	imgs, err := client.ListImages(docker.ListImagesOptions{})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -40,8 +40,7 @@ func ListImages(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImageInfo(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.RequestURI(), "/")
-	id := parts[len(parts)-1]
+	id := mux.Vars(r)["id"]
 
 	image, err := client.InspectImage(id)
 	if err != nil {

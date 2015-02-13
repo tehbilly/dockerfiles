@@ -1,4 +1,4 @@
-<div ng-show="cl.loading" class="loader"></div>
+<spinner while="cl.loading"></spinner>
 <table class="table table-condensed table-hover ng-hide" ng-show="!cl.loading">
   <thead>
     <tr>
@@ -11,7 +11,14 @@
   <tbody>
     <tr ng-repeat="container in cl.containers">
       <td><a class="btn btn-xs btn-default btn-block" style="text-align: left;" ui-sref="containers.info({id: container.ID})">{{container.Name}}</button></td>
-      <td><a class="btn btn-xs btn-info btn-block" style="text-align: left;" ng-href="//{{container.VHost}}" ng-show="container.VHost">{{container.VHost}}</a></td>
+      <td>
+        <a
+          class="btn btn-xs btn-block"
+          style="text-align: left;"
+          ng-href="//{{container.VHost}}"
+          ng-class="{'disabled': !container.Running, 'btn-info': container.Running, 'btn-default': !container.running}"
+          ng-show="container.VHost">{{container.VHost}}</a>
+      </td>
       <td><a class="btn btn-xs btn-default btn-block" style="text-align: left;" ui-sref="images.info({id: container.ImageID})">{{container.Image}}</a></td>
       <td>{{container.Status}}</td>
     </tr>
