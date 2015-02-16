@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gorilla/mux"
@@ -19,6 +21,7 @@ type Image struct {
 func ImageList(w http.ResponseWriter, r *http.Request) {
 	imgs, err := client.ListImages(docker.ListImagesOptions{})
 	if err != nil {
+		fmt.Fprint(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -44,6 +47,7 @@ func ImageInfo(w http.ResponseWriter, r *http.Request) {
 
 	image, err := client.InspectImage(id)
 	if err != nil {
+		fmt.Fprint(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

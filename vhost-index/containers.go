@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/fsouza/go-dockerclient"
@@ -22,9 +23,9 @@ type Container struct {
 }
 
 func ContainerList(w http.ResponseWriter, r *http.Request) {
-	// Let's get a list of containers
 	containers, err := client.ListContainers(docker.ListContainersOptions{All: true})
 	if err != nil {
+		fmt.Fprint(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -66,6 +67,7 @@ func ContainerInfo(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	c, err := client.InspectContainer(id)
 	if err != nil {
+		fmt.Fprint(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -76,6 +78,7 @@ func ContainerStart(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	err := client.StartContainer(id, nil)
 	if err != nil {
+		fmt.Fprint(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -87,6 +90,7 @@ func ContainerStop(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	err := client.StopContainer(id, 10)
 	if err != nil {
+		fmt.Fprint(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -95,9 +99,26 @@ func ContainerStop(w http.ResponseWriter, r *http.Request) {
 }
 
 func ContainerKill(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented", http.StatusNotImplemented)
+	// TODO Provide an option for sending a specific signal instead of just SIGKILL
+	id := mux.Vars(r)["id"]
+	err := client.KillContainer(docker.KillContainerOptions{ID: id})
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "Killed container %s", id)
+	log.Println("Killed container", id)
 }
 
 func ContainerRestart(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented", http.StatusNotImplemented)
+	id := mux.Vars(r)["id"]
+	err := client.RestartContainer(id, 15)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "Restarted container %s", id)
+	log.Println("Restarted container", id)
 }
