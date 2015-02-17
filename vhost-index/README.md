@@ -20,7 +20,7 @@ Usage
 
 You will need to mount the docker daemon socket into the container at `/docker.sock`:
 
-```
+```bash
 $ docker run -d -p 3000:3000 -v /var/run/docker.sock:/docker.sock tehbilly/vhost-index
 ```
 
