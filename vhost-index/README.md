@@ -18,18 +18,23 @@ what I have running and where.
 Usage
 =====
 
-You need to expose the port the container listens on:
+You will need to mount the docker daemon socket into the container at `/docker.sock`:
 
 ```
-$ docker run -d -p 8080:80 -v /var/run/docker.sock:/docker.sock tehbilly/vhost-index
+$ docker run -d -p 3000:3000 -v /var/run/docker.sock:/docker.sock tehbilly/vhost-index
 ```
 
 If you want to use a remote docker daemon, set the `DOCKER_ENDPOINT`
 environment variable:
 
+```bash
+$ docker run -d -p 3000:3000 -e DOCKER_ENDPOINT=http://localhost:4243 tehbilly/vhost-index
 ```
-$ docker run -d -p 8080:80 -e DOCKER_ENDPOINT=http://localhost:4243 tehbilly/vhost-index
-```
+
+By default, the index will generate generate a random password for the user `vadmin`. The
+authentication user and password will be in the container's logs. To disable authentication
+set the environment variable `AUTH_OFF` to `true`. You can also specify the auth credentials
+via `AUTH_USER` and `AUTH_PASS` environment variables.
 
 Future Plans
 ============
@@ -40,7 +45,6 @@ what docker-gen does, but I personally miss the ability to change things at runt
 
 Immediate goals:
 
-- Establish basic HTTP auth protection with `HTTP_USER` and `HTTP_PASS` variables.
 - Provide pull/tag/push options for images to repositories.
 - Show on image/container list which images have new versions available remotely.
 - Show docker events as growl-like notifications.
