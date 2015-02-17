@@ -64,10 +64,15 @@ app.controller('ContainerInfoController', function($http, $stateParams) {
 app.controller('ImageListController', function($http) {
     var il = this;
     il.loading = true;
+    il.TotalSize = 0;
     $http.get('/images/list')
         .success(function(data) {
             il.images = data;
             il.loading = false;
+            for (var i = 0; i < il.images.length; i++) {
+                il.TotalSize = il.TotalSize + il.images[i].VirtualSize;
+            }
+            console.log('TotalSize: ' + il.TotalSize);
         });
 });
 
@@ -152,4 +157,14 @@ app.directive('containerControls', function() {
             };
         }
     };
+});
+
+app.filter('bytes', function() {
+    return function(bytes, precision) {
+        if (isNaN(parseFloat(bytes)) || !isFinite(bytes) || bytes == 0) return '-';
+        if (typeof precision === 'undefined') precision = 1;
+        var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+            number = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
+    }
 });
