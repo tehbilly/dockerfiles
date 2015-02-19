@@ -1,0 +1,15 @@
+[hekad]
+base_dir = "/heka"
+share_dir = "/heka/share/heka"
+
+[DockerLogInput]
+
+[ESLogstash]
+type = "ESLogstashV0Encoder"
+type_name = "%{Type}"
+
+[ElasticSearchOutput]
+message_matcher = "TRUE"
+server = "http://es:9200"
+encoder = "ESLogstash"
+
