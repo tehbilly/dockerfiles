@@ -21,7 +21,7 @@ type Image struct {
 func ImageList(w http.ResponseWriter, r *http.Request) {
 	imgs, err := client.ListImages(docker.ListImagesOptions{})
 	if err != nil {
-		fmt.Fprint(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -47,7 +47,7 @@ func ImageInfo(w http.ResponseWriter, r *http.Request) {
 
 	image, err := client.InspectImage(id)
 	if err != nil {
-		fmt.Fprint(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
