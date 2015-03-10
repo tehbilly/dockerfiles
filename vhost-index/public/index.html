@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>VHost Index</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+    <link rel="stylesheet" href="css/combined.min.css">
+  </head>
+
+  <body ng-app="VHostApp">
+    <!-- Navbar -->
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <!-- <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button> -->
+          <a class="navbar-brand" ui-sref="container-list">VHost Index</a>
+        </div>
+
+        <div>
+          <ul class="nav navbar-nav">
+            <li ui-sref-active="active"><a ui-sref="containers.list">Containers</a></li>
+            <li ui-sref-active="active"><a ui-sref="images.list">Images</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li ui-sref-active="active"><a ui-sref="status">Status</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container" ui-view>
+
+    <script src="js/app.min.js"></script>
+  </body>
+</html>

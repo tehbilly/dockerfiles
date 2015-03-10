@@ -1,0 +1,19 @@
+<spinner while="il.loading"></spinner>
+<table class="table table-condensed table-hover ng-hide" ng-show="!il.loading">
+  <thead>
+    <tr>
+      <th>Tags</th>
+      <th>Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="image in il.images">
+      <td><a ui-sref="images.info({id: image.ID})" style="text-align: left;" class="btn btn-xs btn-default btn-block">{{image.Tags.join(' -- ')}}</a></td>
+      <td><span style="text-align: right;" class="btn btn-xs btn-default btn-block">{{image.VirtualSize | bytes}}</span></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><span style="text-align: right;" class="btn btn-xs btn-default btn-block disabled">{{il.TotalSize | bytes}}</span></td>
+    </tr>
+  </tbody>
+</table>
