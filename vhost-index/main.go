@@ -12,6 +12,7 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/fsouza/go-dockerclient"
 	"github.com/gorilla/mux"
+	ngzip "github.com/phyber/negroni-gzip/gzip"
 )
 
 var (
@@ -35,6 +36,7 @@ func init() {
 
 func main() {
 	n := negroni.New()
+	n.Use(ngzip.Gzip(ngzip.DefaultCompression))
 	n.Use(negroni.NewStatic(http.Dir("public")))
 
 	// Set up a Basic Authentication handler unless explicitly disabled
