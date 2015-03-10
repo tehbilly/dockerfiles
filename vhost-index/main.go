@@ -35,7 +35,7 @@ func init() {
 
 func main() {
 	n := negroni.New()
-	n.Use(negroni.NewStatic(http.Dir("site")))
+	n.Use(negroni.NewStatic(http.Dir("public")))
 
 	// Set up a Basic Authentication handler unless explicitly disabled
 	if os.Getenv("AUTH_OFF") != strings.ToLower("true") {
