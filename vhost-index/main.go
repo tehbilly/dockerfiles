@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -16,19 +17,14 @@ import (
 )
 
 var (
-	endpoint = "unix:///docker.sock"
-	client   *docker.Client
+	client *docker.Client
 )
 
 func init() {
-	if os.Getenv("DOCKER_ENDPOINT") != "" {
-		endpoint = os.Getenv("DOCKER_ENDPOINT")
-	}
-
 	// Try to set up the client!
-	dc, err := docker.NewClient(endpoint)
+	dc, err := getDockerClient()
 	if err != nil {
-		fmt.Println("Unable to contact docker daemon at:", endpoint)
+		fmt.Println(err)
 		os.Exit(1)
 	}
 	client = dc
@@ -129,4 +125,25 @@ func DockerServerInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(info)
+}
+
+func getDockerClient() (*docker.Client, error) {
+	if envHost := os.Getenv("DOCKER_HOST"); envHost != "" {
+		return docker.NewClient(envHost)
+	}
+
+	if envHost := os.Getenv("DOCKER_ENDPOINT"); envHost != "" {
+		fmt.Println("WARNING: DOCKER_ENDPOINT will be deprecated in the future. Use the standard DOCKER_HOST environment variable going forward.")
+		return docker.NewClient(envHost)
+	}
+
+	unixSockets := []string{"/docker.sock", "/run/docker.sock", "/var/run/docker.sock"}
+	for _, s := range unixSockets {
+		if _, err := os.Stat(s); err == nil {
+			return docker.NewClient(fmt.Sprintf("unix://%s", s))
+		}
+	}
+
+	// Still here? Not good.
+	return nil, errors.New("Unable to find a docker endpoint to use.")
 }
