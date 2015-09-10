@@ -1,0 +1,6 @@
+#!/bin/sh
+
+sed -i "s/{{SLACK_TOKEN}}/${SLACK_TOKEN}/" /root/.weechat/plugins.conf
+sed -i "s/{{RELAY_PASS}}/${RELAY_PASS}/" /root/.weechat/relay.conf
+
+exec weechat
